@@ -1,0 +1,24 @@
+#!/bin/sh
+# Wrapper custom integration Telegram untuk Wazuh.
+# Dipanggil modul Integrator, meneruskan argumennya ke custom-telegram.py.
+#
+# Argumen yang diteruskan:
+#   $1 path file alert JSON
+#   $2 nilai <api_key>  (chat ID Telegram)
+#   $3 nilai <hook_url> (URL sendMessage bot)
+
+# WAZUH_PATH bisa ditimpa lewat environment untuk keperluan pengujian.
+: "${WAZUH_PATH:=/var/ossec}"
+PY="${WAZUH_PATH}/framework/python/bin/python3"
+
+# Pakai interpreter bawaan Wazuh kalau ada, kalau tidak pakai python3 sistem.
+if [ ! -x "${PY}" ]; then
+    PY="$(command -v python3)"
+fi
+
+if [ -z "${PY}" ]; then
+    echo "custom-telegram: ERROR - python3 tidak ditemukan" >> "${WAZUH_PATH}/logs/integrations.log"
+    exit 1
+fi
+
+exec "${PY}" "${WAZUH_PATH}/integrations/custom-telegram.py" "$@"
